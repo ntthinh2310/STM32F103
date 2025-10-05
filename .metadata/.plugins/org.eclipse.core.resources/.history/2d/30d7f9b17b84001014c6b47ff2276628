@@ -1,0 +1,156 @@
+#include<stdint.h>
+#include<stm32f103x6.h>
+
+//Prototype Function
+
+//Variables
+volatile uint32_t msTick = 0;
+uint8_t rxData = 0;
+int flag = 0;
+//MAIN PROGRAM
+
+void SYS_INIT(void)
+{
+	//Config SYSCLK: PLL 72MHZ
+    // Enable HSE first
+	RCC->CFGR |= (1U<<16);	//1: HSE oscillator clock selected as PLL input clock
+	RCC->CFGR &= ~(1U<<17);	//0: HSE clock not divided
+
+	FLASH->ACR = (FLASH->ACR & ~0x7) | 0x2;
+
+	RCC->CFGR = (RCC->CFGR & ~(0xF<<18)) | (0x7<<18);
+	RCC->CFGR = (RCC->CFGR & ~(0X3<<14)) | (0X2<<14); //ADC PRESCALE / 6 ;ADC MAX = 14MHZ
+	RCC->CFGR = (RCC->CFGR & ~(0X3<<8)) | (0X4<<8); //APB1 = /2 MAX = 36MHZ
+
+	//Enable PLL
+	RCC->CR |= (1U<<16); //ENABLE HSE FIRST
+	while( (RCC->CR & (1U<<17)) == 0);
+	RCC->CR |= (1U<<24);
+	while( (RCC->CR & (1u<<25)) == 0);
+
+	//Chose PLL as SYSCLK
+	RCC->CFGR = (RCC->CFGR & ~0x3U) | 0x2U;   // SW = 10: SYSCLK=PLL
+	while(((RCC->CFGR >> 2) & 0x3U) != 0x2U); // đợi SWS=PLL
+
+
+	//Enable Clock Bus APB2
+	RCC->APB2ENR |= (1U<<2) | (1U<<4) | (1U<<9) | (1U<<14); //ENABLE GPIOA,GPIOC,ADC1,USART1
+	//PC13:OUTPUT CNF = 0X00; MODE = 0X11;
+	GPIOC->CRH = (GPIOC->CRH &~ (0XF<<20)) | (0X3<<20);
+	//PA1:analog
+	GPIOA->CRL &= ~(0XF<<4);
+	//PA9:TX ;PA10:RX
+	GPIOA->CRH = (GPIOA->CRH &~ (0XF<<4)) | (0XB<<4);
+	GPIOA->CRH = (GPIOA->CRH &~ (0XF<<8)) | (0X4<<8);
+
+
+	//SYSTICK CONFIG
+	SysTick->LOAD = (72000000/1000)-1;
+	SysTick->VAL = 0;
+	SysTick->CTRL |= 0x7;
+
+	//USART CONFIG
+	//baudrate = fCK /(16*USARTDIV) => 115200 = 72000000/(16*USARTDIV) => USARTDIV = 39.0625
+	//DIV_Mantissa = 39 = 0X27; DIV_Fraction = 0.0625 * 16 = 1;
+	USART1->BRR = (0X27<<4) | (0X1);
+	USART1->CR1 = 0;
+	USART1->CR2 = 0;
+	USART1->CR3 = 0;
+	USART1->CR1 |= (1<<2)|(1<<3)|(1<<13);	//Enable :UE TE RE
+
+	//ADC
+	ADC1->CR1 = 0;
+	ADC1->CR2 = 0;
+	ADC1->SMPR1 = 0;
+	ADC1->SMPR2 = (ADC1->SMPR2&~(7U<<3)) | (4U<<3);
+	ADC1->SQR1 = 0;
+	ADC1->SQR3 = 1;
+	ADC1->CR2 |= 1U;
+	for(int i=0;i<1000;i++);
+	ADC1->CR2 |= (1U<<3);
+	while(ADC1->CR2 & (1U<<3)); // đợi phần cứng clear về 0
+
+	// Start calibration
+	ADC1->CR2 |= (1U<<2);
+	while(ADC1->CR2 & (1U<<2)) ;// đợi phần cứng clear về 0
+	ADC1->CR2 |= (1U<<20) ;
+	ADC1->CR2 |= (1U<<22);
+
+
+
+}
+
+void USART1_Receive(uint8_t *data)
+{
+    uint32_t timeout = msTick + 1000;               // 1 second timeout
+
+    while(!(USART1->SR & (1 << 5)))                // Wait for RXNE flag
+    {
+        // Check for errors
+        if(USART1->SR & ((1 << 0) | (1 << 1) | (1 << 2) | (1 << 3)))
+        {
+            (void)USART1->DR;                       // Clear error by reading DR
+            *data = 0;
+            return;
+        }
+
+        // Check timeout
+        if(msTick > timeout)
+        {
+            *data = 0;
+            return;
+        }
+    }
+
+    *data = (uint8_t)USART1->DR;                    // Read received data
+}
+
+void USART1_Transmit(uint8_t c)
+{
+	while( !(USART1->SR & (1<<7)) );
+	USART1->DR = c;
+}
+
+void USART1_TransmitString(char *str)
+{
+    while(*str)
+    {
+        USART1_Transmit((uint8_t)*str++);
+    }
+}
+
+
+void SysTick_Handler(void)
+{
+	msTick++;
+}
+void my_delay(uint32_t delay)
+{
+	uint32_t start = msTick;
+	while( (msTick-start) < delay );
+
+}
+
+
+
+int main(void)
+{
+	SYS_INIT();
+	USART1_TransmitString("READY\r\n");
+	while(1)
+	{
+		USART1_Receive(&rxData);
+		if(rxData != 0)
+		{
+
+			USART1_TransmitString("Callback : ");
+			USART1_Transmit(rxData);   // gửi đúng 1 ký tự
+			USART1_TransmitString("\r\n");
+			rxData = 0;
+
+		}
+		GPIOC->ODR ^= (1 << 13);
+	}
+	return 0;
+}
+

@@ -1,0 +1,46 @@
+11:45:01 **** Incremental Build of configuration Debug for project stm32f103 ****
+make -j8 all 
+CMSIS/CoreValidation/Layer/Target/CA9/RTE/Device/ARMCA9/subdir.mk:35: warning: overriding recipe for target 'CMSIS/CoreValidation/Layer/Target/CA9/RTE/Device/ARMCA9/startup_ARMCA9.o'
+CMSIS/CoreValidation/Layer/Target/CA9/RTE/Device/ARMCA9/subdir.mk:33: warning: ignoring old recipe for target 'CMSIS/CoreValidation/Layer/Target/CA9/RTE/Device/ARMCA9/startup_ARMCA9.o'
+CMSIS/CoreValidation/Layer/Target/CA7/RTE/Device/ARMCA7/subdir.mk:35: warning: overriding recipe for target 'CMSIS/CoreValidation/Layer/Target/CA7/RTE/Device/ARMCA7/startup_ARMCA7.o'
+CMSIS/CoreValidation/Layer/Target/CA7/RTE/Device/ARMCA7/subdir.mk:33: warning: ignoring old recipe for target 'CMSIS/CoreValidation/Layer/Target/CA7/RTE/Device/ARMCA7/startup_ARMCA7.o'
+CMSIS/CoreValidation/Layer/Target/CA5/RTE/Device/ARMCA5/subdir.mk:35: warning: overriding recipe for target 'CMSIS/CoreValidation/Layer/Target/CA5/RTE/Device/ARMCA5/startup_ARMCA5.o'
+CMSIS/CoreValidation/Layer/Target/CA5/RTE/Device/ARMCA5/subdir.mk:33: warning: ignoring old recipe for target 'CMSIS/CoreValidation/Layer/Target/CA5/RTE/Device/ARMCA5/startup_ARMCA5.o'
+arm-none-eabi-gcc "/home/truongthinh/CMSIS_SCR/cmsis-device-f1/Source/Templates/system_stm32f1xx.c" -mcpu=cortex-m3 -std=gnu11 -g3 -DDEBUG -DSTM32 -DSTM32F1 -DSTM32F103C8Tx -c -I../Inc -O0 -ffunction-sections -fdata-sections -Wall -fstack-usage -fcyclomatic-complexity -MMD -MP -MF"cmsis-device-f1/Source/Templates/system_stm32f1xx.d" -MT"cmsis-device-f1/Source/Templates/system_stm32f1xx.o" --specs=nano.specs -mfloat-abi=soft -mthumb -o "cmsis-device-f1/Source/Templates/system_stm32f1xx.o"
+arm-none-eabi-gcc -mcpu=cortex-m3 -g3 -DDEBUG -c -x assembler-with-cpp -MMD -MP -MF"Startup/startup_stm32f103c8tx.d" -MT"Startup/startup_stm32f103c8tx.o" --specs=nano.specs -mfloat-abi=soft -mthumb -o "Startup/startup_stm32f103c8tx.o" "../Startup/startup_stm32f103c8tx.s"
+arm-none-eabi-gcc "../Src/main.c" -mcpu=cortex-m3 -std=gnu11 -g3 -DDEBUG -DSTM32 -DSTM32F1 -DSTM32F103C8Tx -c -I../Inc -O0 -ffunction-sections -fdata-sections -Wall -fstack-usage -fcyclomatic-complexity -MMD -MP -MF"Src/main.d" -MT"Src/main.o" --specs=nano.specs -mfloat-abi=soft -mthumb -o "Src/main.o"
+arm-none-eabi-gcc "../Src/syscalls.c" -mcpu=cortex-m3 -std=gnu11 -g3 -DDEBUG -DSTM32 -DSTM32F1 -DSTM32F103C8Tx -c -I../Inc -O0 -ffunction-sections -fdata-sections -Wall -fstack-usage -fcyclomatic-complexity -MMD -MP -MF"Src/syscalls.d" -MT"Src/syscalls.o" --specs=nano.specs -mfloat-abi=soft -mthumb -o "Src/syscalls.o"
+arm-none-eabi-gcc "../Src/sysmem.c" -mcpu=cortex-m3 -std=gnu11 -g3 -DDEBUG -DSTM32 -DSTM32F1 -DSTM32F103C8Tx -c -I../Inc -O0 -ffunction-sections -fdata-sections -Wall -fstack-usage -fcyclomatic-complexity -MMD -MP -MF"Src/sysmem.d" -MT"Src/sysmem.o" --specs=nano.specs -mfloat-abi=soft -mthumb -o "Src/sysmem.o"
+arm-none-eabi-gcc "/home/truongthinh/CMSIS_SCR/CMSIS_6/CMSIS/RTOS2/Source/os_systick.c" -mcpu=cortex-m3 -std=gnu11 -g3 -DDEBUG -DSTM32 -DSTM32F1 -DSTM32F103C8Tx -c -I../Inc -O0 -ffunction-sections -fdata-sections -Wall -fstack-usage -fcyclomatic-complexity -MMD -MP -MF"CMSIS/RTOS2/Source/os_systick.d" -MT"CMSIS/RTOS2/Source/os_systick.o" --specs=nano.specs -mfloat-abi=soft -mthumb -o "CMSIS/RTOS2/Source/os_systick.o"
+arm-none-eabi-gcc "/home/truongthinh/CMSIS_SCR/CMSIS_6/CMSIS/RTOS2/Source/os_tick_gtim.c" -mcpu=cortex-m3 -std=gnu11 -g3 -DDEBUG -DSTM32 -DSTM32F1 -DSTM32F103C8Tx -c -I../Inc -O0 -ffunction-sections -fdata-sections -Wall -fstack-usage -fcyclomatic-complexity -MMD -MP -MF"CMSIS/RTOS2/Source/os_tick_gtim.d" -MT"CMSIS/RTOS2/Source/os_tick_gtim.o" --specs=nano.specs -mfloat-abi=soft -mthumb -o "CMSIS/RTOS2/Source/os_tick_gtim.o"
+arm-none-eabi-gcc "/home/truongthinh/CMSIS_SCR/CMSIS_6/CMSIS/RTOS2/Source/os_tick_ptim.c" -mcpu=cortex-m3 -std=gnu11 -g3 -DDEBUG -DSTM32 -DSTM32F1 -DSTM32F103C8Tx -c -I../Inc -O0 -ffunction-sections -fdata-sections -Wall -fstack-usage -fcyclomatic-complexity -MMD -MP -MF"CMSIS/RTOS2/Source/os_tick_ptim.d" -MT"CMSIS/RTOS2/Source/os_tick_ptim.o" --specs=nano.specs -mfloat-abi=soft -mthumb -o "CMSIS/RTOS2/Source/os_tick_ptim.o"
+/home/truongthinh/CMSIS_SCR/cmsis-device-f1/Source/Templates/system_stm32f1xx.c:58:10: fatal error: stm32f1xx.h: No such file or directory
+   58 | #include "stm32f1xx.h"
+      |          ^~~~~~~~~~~~~
+compilation terminated.
+/home/truongthinh/CMSIS_SCR/CMSIS_6/CMSIS/RTOS2/Source/os_systick.c:25:10: fatal error: os_tick.h: No such file or directory
+   25 | #include "os_tick.h"
+      |          ^~~~~~~~~~~
+compilation terminated.
+/home/truongthinh/CMSIS_SCR/CMSIS_6/CMSIS/RTOS2/Source/os_tick_gtim.c:25:10: fatal error: os_tick.h: No such file or directory
+   25 | #include "os_tick.h"
+      |          ^~~~~~~~~~~
+compilation terminated.
+make: *** [CMSIS/RTOS2/Source/subdir.mk:27: CMSIS/RTOS2/Source/os_tick_gtim.o] Error 1
+make: *** Waiting for unfinished jobs....
+/home/truongthinh/CMSIS_SCR/CMSIS_6/CMSIS/RTOS2/Source/os_tick_ptim.c:25:10: fatal error: RTE_Components.h: No such file or directory
+   25 | #include "RTE_Components.h"
+      |          ^~~~~~~~~~~~~~~~~~
+compilation terminated.
+make: *** [cmsis-device-f1/Source/Templates/subdir.mk:19: cmsis-device-f1/Source/Templates/system_stm32f1xx.o] Error 1
+make: *** [CMSIS/RTOS2/Source/subdir.mk:25: CMSIS/RTOS2/Source/os_systick.o] Error 1
+../Src/main.c:20:10: fatal error: stm32f103x6.h: No such file or directory
+   20 | #include "stm32f103x6.h"
+      |          ^~~~~~~~~~~~~~~
+compilation terminated.
+make: *** [CMSIS/RTOS2/Source/subdir.mk:29: CMSIS/RTOS2/Source/os_tick_ptim.o] Error 1
+make: *** [Src/subdir.mk:25: Src/main.o] Error 1
+"make -j8 all" terminated with exit code 2. Build might be incomplete.
+
+11:45:01 Build Failed. 11 errors, 6 warnings. (took 177ms)
+

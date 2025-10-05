@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<section name="Workbench">
+	<item key="hasShownOverlayPopupBefore" value="true"/>
+	<item key="replaceBarOpen" value="false"/>
+	<list key="searchhistory">
+		<item value="SysTick"/>
+		<item value="Handler"/>
+		<item value="IRQHandler"/>
+		<item value="SYS"/>
+		<item value="Sys"/>
+		<item value="Handker"/>
+		<item value="ADC_DR_DATA"/>
+		<item value="USART1_IRQ"/>
+		<item value="USART1"/>
+		<item value="USART1_IRQHandler"/>
+		<item value="SysTick_Type"/>
+		<item value="EXTI0"/>
+		<item value="SYSCFG"/>
+		<item value="SYS_CFG"/>
+		<item value="EXTI"/>
+	</list>
+</section>

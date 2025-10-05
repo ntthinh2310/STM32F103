@@ -1,0 +1,129 @@
+#include <stdint.h>
+#include "stm32f101x6.h"
+
+#define ADC_DR_Dt (*(volatile uint16_t*)(0x40012400 + 0x4C))
+
+static inline void USART1_Transmit(uint8_t c);
+void USART1_TransmitString(const char *str);
+void USART1_TransmitNumber(uint16_t num);
+static inline uint16_t readADC(void);
+void my_delay(uint32_t ms);
+
+volatile uint32_t msTick = 0;
+volatile uint16_t a = 0;         // giá trị ADC mới nhất (global, volatile)
+volatile uint8_t  flag_1s = 0;   // cờ báo mỗi 1 giây
+
+void SysTick_Handler(void) {
+    msTick++;
+    static uint32_t last = 0;
+    if ((msTick - last) >= 1000) {
+        last = msTick;
+        flag_1s = 1;             // chỉ bật cờ, không làm việc nặng trong ISR
+    }
+}
+
+void Sys_Init(void)
+{
+    // SYSCLK = HSE 8MHz
+    RCC->CR |= (1U<<16);
+    while(!(RCC->CR & (1U<<17)));
+    RCC->CFGR = (RCC->CFGR & ~0x3U) | 0x1U;
+    while(((RCC->CFGR>>2)&0x3U) != 0x1U);
+
+    // BẬT SYSTICK trước khi dùng my_delay
+    SysTick->LOAD = (8000000/1000) - 1;     // 1ms @ 8MHz
+    SysTick->VAL  = 0;
+    SysTick->CTRL = (1<<0)|(1<<1)|(1<<2);   // ENABLE | TICKINT | CLKSOURCE=AHB
+
+    // PC13 output
+    RCC->APB2ENR |= (1U<<4);
+    GPIOC->CRH = (GPIOC->CRH & ~(0xFU<<20)) | (0x3U<<20);
+
+    // USART1 PA9(TX), PA10(RX)
+    RCC->APB2ENR |= (1U<<2) | (1U<<14);
+    GPIOA->CRH = (GPIOA->CRH & ~(0xFU<<4)) | (0xBU<<4); // PA9 AF PP 50MHz
+    GPIOA->CRH = (GPIOA->CRH & ~(0xFU<<8)) | (0x4U<<8); // PA10 input floating
+
+    USART1->BRR = (0x34U<<4) | 0x1U;        // 9600 @ 8MHz
+    USART1->CR1 = (1<<13)|(1<<3)|(1<<2);    // UE|TE|RE
+
+    // ADC1 PA1
+    RCC->APB2ENR |= (1U<<9);
+    GPIOA->CRL &= ~(0xFU<<(1*4));           // PA1 analog
+
+    RCC->CFGR = (RCC->CFGR & ~(3U<<14)) | (2U<<14); // ADCPRE=PCLK2/6 (an toàn)
+    ADC1->CR1 = 0;
+    ADC1->CR2 = 0;
+    ADC1->SMPR2 = (ADC1->SMPR2 & ~(7U<<3)) | (7U<<3); // CH1 sample dài
+    ADC1->SQR1 = 0;           // 1 conversion
+    ADC1->SQR3 = 1;           // kênh 1
+
+    ADC1->CR2 |= (1U<<0);     // ADON
+    my_delay(20);
+    ADC1->CR2 |= (1U<<3); while(ADC1->CR2 & (1U<<3)){} // RSTCAL
+    ADC1->CR2 |= (1U<<2); while(ADC1->CR2 & (1U<<2)){} // CAL
+
+    ADC1->CR2 |= (1U<<20) | (7U<<17);  // EXTTRIG=1, EXTSEL=SWSTART
+    ADC1->CR2 |= (1U<<1);              // CONT=1
+    ADC1->CR2 |= (1U<<22);             // SWSTART (một lần)
+}
+
+static inline uint16_t readADC(void) {
+    while((ADC1->SR & (1U<<1)) == 0){}  // EOC
+    return (uint16_t)ADC1->DR;
+}
+
+static inline void USART1_Transmit(uint8_t c){
+    while(!(USART1->SR & (1<<7)));      // TXE
+    USART1->DR = c;
+}
+
+void USART1_TransmitString(const char *s){
+    while(*s) USART1_Transmit((uint8_t)*s++);
+}
+
+void USART1_TransmitNumber(uint16_t num){
+    char buf[6]; int i=0;
+    if(num==0){ USART1_Transmit('0'); return; }
+    while(num){ buf[i++] = (num%10)+'0'; num/=10; }
+    while(i--) USART1_Transmit(buf[i]);
+}
+
+void my_delay(uint32_t ms){
+    uint32_t start = msTick;
+    while( (msTick - start) < ms );
+}
+
+int main(void)
+{
+    Sys_Init();
+    USART1_TransmitString("Ready\r\n");
+
+    while(1)
+    {
+        // mỗi 1s làm việc nặng một lần (thay vì trong ISR)
+        if(flag_1s){
+            flag_1s = 0;
+
+            a = readADC();                               // cập nhật GLOBAL a
+            float v = (a * 3.3f) / 4096.0f;
+            uint16_t vi = (uint16_t)v;
+            uint16_t vf = (uint16_t)((v - vi) * 100);    // 2 số lẻ
+
+            USART1_TransmitString("ADC: ");
+            USART1_TransmitNumber(a);
+            USART1_TransmitString("\r\nVol: ");
+            USART1_TransmitNumber(vi);
+            USART1_Transmit('.');
+            // in phần thập phân luôn đủ 2 chữ số
+            if(vf < 10) USART1_Transmit('0');
+            USART1_TransmitNumber(vf);
+            USART1_TransmitString(" V\r\n\n");
+
+            GPIOC->ODR ^= (1U<<13);
+        }
+
+        // ví dụ dùng a làm delay biến thiên (a đã được cập nhật)
+        // my_delay(a); // bật nếu bạn muốn
+    }
+}

@@ -1,0 +1,6 @@
+../Src/Timer.c:6:6:SysClock_Init	4
+../Src/Timer.c:35:6:GPIO_Init	1
+../Src/Timer.c:40:6:SysTick_Init	1
+../Src/Timer.c:46:6:SysTick_Handler	1
+../Src/Timer.c:51:6:delay	2
+../Src/Timer.c:56:5:main	1

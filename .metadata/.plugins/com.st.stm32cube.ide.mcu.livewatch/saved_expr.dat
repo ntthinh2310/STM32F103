@@ -1,0 +1,2 @@
+*(volatile uint32_t*)0x4001244C
+SystemCoreClock
