@@ -1,6 +1,12 @@
 ../Src/Timer.c:6:6:SysClock_Init	4	static
 ../Src/Timer.c:35:6:GPIO_Init	4	static
-../Src/Timer.c:40:6:SysTick_Init	4	static
-../Src/Timer.c:46:6:SysTick_Handler	4	static
-../Src/Timer.c:51:6:delay	24	static
-../Src/Timer.c:56:5:main	8	static
+../Src/Timer.c:45:6:SysTick_Init	4	static
+../Src/Timer.c:52:6:SysTick_Handler	4	static
+../Src/Timer.c:57:6:Timer2_PWM_Init	4	static
+../Src/Timer.c:86:6:Servo_SetAngle	24	static
+../Src/Timer.c:114:6:Servo_StartMove	24	static
+../Src/Timer.c:132:6:Servo_Update	32	static
+../Src/Timer.c:163:9:Servo_IsMoving	4	static
+../Src/Timer.c:169:6:Servo_Stop	4	static
+../Src/Timer.c:175:7:Servo_GetCurrentAngle	24	static
+../Src/Timer.c:188:5:main	16	static

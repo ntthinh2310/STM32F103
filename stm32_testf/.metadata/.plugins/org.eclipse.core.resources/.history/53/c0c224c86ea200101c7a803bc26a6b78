@@ -1,0 +1,149 @@
+#include<stdint.h>
+#include<stm32f101x6.h>
+
+volatile uint32_t msTick = 0;
+
+void SysClock_Init(void)
+{
+	//Enable HSE
+	RCC->CR |= (1U<<16);
+	while( (RCC->CR & (1U<<17)) == 0 );
+
+	FLASH->ACR = (FLASH->ACR &~ (7U)) | (2U); //FLASH LATENCY WITH LAGRE PULSE
+	FLASH->ACR |= (1U<<4);
+
+	/* 3) Prescaler đặt TRƯỚC khi switch SYSCLK để tránh quá xung */
+	RCC->CFGR = (RCC->CFGR &~(3U<<14)) | (2U<<14); //ADCPRE DEVIDE 6
+	RCC->CFGR = (RCC->CFGR &~(7U<<11))| (0x0U<<11); // APB2 NOT DEVIDE
+	RCC->CFGR = (RCC->CFGR &~(7U<<8)) | (4U<<8); //APB1 DEVICE 2
+	RCC->CFGR = (RCC->CFGR &~(7U<<4)) | (0x0U<<4); //AHB NOT DEVIDE
+
+	RCC->CFGR &= ~(1<<17); // PLLXTPRE = 0
+	RCC->CFGR |= (1<<16); //PLLSRC = 1
+	RCC->CFGR = (RCC->CFGR &~ (0XFU<<18)) | (7U<<18); //PLLMUL X 9
+
+	RCC->CR |= (1U<<24); //PLLON
+	while( (RCC->CR & (1U<<25)) == 0 ); //WAIT PLL READY
+
+	RCC->CFGR = (RCC->CFGR &~ (3U)) | (2U); //SW = PLL
+	while (((RCC->CFGR >> 2) & 0x3U) != 0x2U); //WAIT SWS == PLL
+
+	RCC->APB2ENR |= (1U<<2) | (1U<<4); // GPIOA, GPIOC
+	RCC->APB1ENR |= (1U<<0); // TIM2
+
+}
+void GPIO_Init(void)
+{
+	GPIOC->CRH = (GPIOC->CRH &~(0XF<<20)) | (0X3<<20);
+	GPIOC->ODR &= ~(1U<<13);
+    GPIOA->CRL = (GPIOA->CRL &~(0xF<<0)) | (0xB<<0); // 1011: AF output Push-Pull, 50MHz
+
+}
+void SysTick_Init(void)
+{
+	SysTick->LOAD = 72000 - 1; //72MHZ
+	SysTick->VAL = 0;
+	SysTick->CTRL |= 7u<<0;
+}
+void SysTick_Handler(void)
+{
+	msTick ++;
+}
+
+void delay(uint32_t delay)
+{
+	uint32_t start = msTick;
+	while( (msTick-start) < delay );
+}
+
+void Timer2_PWM_Init(void)
+{
+    /*
+     * Timer2 Clock = APB1 x 2 = 36MHz x 2 = 72MHz (khi APB1 prescaler != 1)
+     * PWM Frequency = 50Hz (cho servo)
+     * Period = 20ms = 0.02s
+     * ARR = (72000000 / (PSC+1)) / 50 - 1
+     *
+     * Chọn PSC = 71 -> Timer Clock = 72MHz / 72 = 1MHz
+     * ARR = 1000000 / 50 - 1 = 19999
+     *
+     * Servo pulse width: 1ms - 2ms (1000 - 2000 trong CCR)
+     * 1ms = 0 độ, 1.5ms = 90 độ, 2ms = 180 độ
+     */
+
+    // Prescaler: 72 - 1 = 71
+    TIM2->PSC = 71;
+
+    // Auto-reload value: 20000 - 1 = 19999 (20ms period)
+    TIM2->ARR = 19999;
+
+    // Capture/Compare Register 1 (Duty cycle)
+    TIM2->CCR1 = 1500; // 1.5ms pulse width (90 degrees)
+
+    // Configure TIM2 Channel 1 as PWM mode 1
+    TIM2->CCMR1 &= ~(0xFF<<0); // Clear CC1S, OC1M, OC1PE
+    TIM2->CCMR1 |= (6U<<4); // OC1M = 110 (PWM mode 1)
+    TIM2->CCMR1 |= (1U<<3); // OC1PE = 1 (Output Compare 1 preload enable)
+
+    // Enable Capture/Compare output
+    TIM2->CCER |= (1U<<0); // CC1E = 1 (Capture/Compare 1 output enable)
+
+    // Enable auto-reload preload
+    TIM2->CR1 |= (1U<<7); // ARPE = 1
+
+    // Enable counter
+    TIM2->CR1 |= (1U<<0); // CEN = 1
+
+    // Generate update event to load values
+    TIM2->EGR |= (1U<<0); // UG = 1
+}
+void Servo_SetAngle(uint16_t angle)
+{
+    if(angle > 180) angle = 180;
+
+    // Map angle to pulse width: 0° = 1ms, 180° = 2ms
+    // CCR = 1000 + (angle * 1000 / 180)
+    uint16_t pulse = 1000 + (angle * 1000) / 180;
+    TIM2->CCR1 = pulse;
+}
+
+// Function to set servo pulse width directly (1000 - 2000)
+void Servo_SetPulse(uint16_t pulse)
+{
+    if(pulse < 1000) pulse = 1000;
+    if(pulse > 2000) pulse = 2000;
+    TIM2->CCR1 = pulse;
+}
+int main(void)
+{
+	SysClock_Init();
+	GPIO_Init();
+	SysTick_Init();
+	Timer2_PWM_Init();
+	SystemCoreClockUpdate();
+
+	uint16_t angle = 0;
+	uint8_t direction = 1;
+	while(1)
+	{
+		GPIOC->ODR ^= (1U<<13);
+		 Servo_SetAngle(angle);
+			if(direction) {
+				angle += 10;
+				if(angle >= 180) {
+					angle = 180;
+					direction = 0;
+				}
+			} else {
+				if(angle >= 10) {
+					angle -= 10;
+				} else {
+					angle = 0;
+					direction = 1;
+				}
+			}
+
+			delay(500);
+	}
+	return 1;
+}

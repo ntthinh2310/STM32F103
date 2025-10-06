@@ -25,5 +25,4 @@ C_DEPS :=
 SUBDIRS := \
 Src \
 Startup \
-cmsis-device-f1/Source/Templates \
 

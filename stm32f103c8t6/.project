@@ -32,12 +32,12 @@
 		<link>
 			<name>Core</name>
 			<type>2</type>
-			<location>/home/truongthinh/CMSIS_SCR/CMSIS_6/CMSIS/Core</location>
+			<location>C:/home/truongthinh/CMSIS_SCR/CMSIS_6/CMSIS/Core</location>
 		</link>
 		<link>
 			<name>cmsis-device-f1</name>
 			<type>2</type>
-			<location>/home/truongthinh/CMSIS_SCR/cmsis-device-f1</location>
+			<location>C:/home/truongthinh/CMSIS_SCR/cmsis-device-f1</location>
 		</link>
 	</linkedResources>
 </projectDescription>

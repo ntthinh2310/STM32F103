@@ -1,13 +1,13 @@
 Src/Timer.o: ../Src/Timer.c \
- /home/truongthinh/CMSIS_SCR/cmsis-device-f1/Include/stm32f103x6.h \
- /home/truongthinh/CMSIS_SCR/CMSIS_6/CMSIS/Core/Include/core_cm3.h \
- /home/truongthinh/CMSIS_SCR/CMSIS_6/CMSIS/Core/Include/cmsis_version.h \
- /home/truongthinh/CMSIS_SCR/CMSIS_6/CMSIS/Core/Include/cmsis_compiler.h \
- /home/truongthinh/CMSIS_SCR/CMSIS_6/CMSIS/Core/Include/cmsis_gcc.h \
- /home/truongthinh/CMSIS_SCR/cmsis-device-f1/Include/system_stm32f1xx.h
-/home/truongthinh/CMSIS_SCR/cmsis-device-f1/Include/stm32f103x6.h:
-/home/truongthinh/CMSIS_SCR/CMSIS_6/CMSIS/Core/Include/core_cm3.h:
-/home/truongthinh/CMSIS_SCR/CMSIS_6/CMSIS/Core/Include/cmsis_version.h:
-/home/truongthinh/CMSIS_SCR/CMSIS_6/CMSIS/Core/Include/cmsis_compiler.h:
-/home/truongthinh/CMSIS_SCR/CMSIS_6/CMSIS/Core/Include/cmsis_gcc.h:
-/home/truongthinh/CMSIS_SCR/cmsis-device-f1/Include/system_stm32f1xx.h:
+ D:/Learn/AGV/cmsis-device-f1-master/Include/stm32f101x6.h \
+ D:/Learn/AGV/cmsis-core-master/Core/Include/core_cm3.h \
+ D:/Learn/AGV/cmsis-core-master/Core/Include/cmsis_version.h \
+ D:/Learn/AGV/cmsis-core-master/Core/Include/cmsis_compiler.h \
+ D:/Learn/AGV/cmsis-core-master/Core/Include/cmsis_gcc.h \
+ D:/Learn/AGV/cmsis-device-f1-master/Include/system_stm32f1xx.h
+D:/Learn/AGV/cmsis-device-f1-master/Include/stm32f101x6.h:
+D:/Learn/AGV/cmsis-core-master/Core/Include/core_cm3.h:
+D:/Learn/AGV/cmsis-core-master/Core/Include/cmsis_version.h:
+D:/Learn/AGV/cmsis-core-master/Core/Include/cmsis_compiler.h:
+D:/Learn/AGV/cmsis-core-master/Core/Include/cmsis_gcc.h:
+D:/Learn/AGV/cmsis-device-f1-master/Include/system_stm32f1xx.h:
